@@ -37,12 +37,12 @@ export async function BrandsStrip({ brands, title }: { brands: BrandSummary[]; t
   return (
     <Section bordered>
       <SectionHeader title={title ?? t("home.brands.title")} cta={{ label: t("home.brands.cta"), href: "/brands" }} className="mb-5" />
-      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {brands.map((b) => (
           <li key={b.id}>
-            <Link href={b.href} className="flex h-20 items-center justify-center rounded-lg border border-border bg-surface px-4 transition-colors hover:border-ink" title={b.name}>
+            <Link href={b.href} className="flex h-24 items-center justify-center rounded-lg border border-border bg-surface px-4 transition-colors hover:border-ink" title={b.name}>
               {b.logo ? (
-                <Image src={b.logo} alt={b.name} width={160} height={80} className="max-h-12 w-auto object-contain" />
+                <Image src={b.logo} alt={b.name} width={240} height={120} className="h-16 w-auto object-contain" />
               ) : (
                 <span className="font-display text-base font-extrabold tracking-tight">{b.name}</span>
               )}

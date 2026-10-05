@@ -170,6 +170,7 @@ export const admin = {
     create: "Nouveau produit",
     columns: { product: "Produit", sku: "SKU", category: "Catégorie", brand: "Marque", price: "Prix HT", stock: "Stock", status: "Statut", sales: "Ventes" },
     filters: { status: "Statut", category: "Catégorie", brand: "Marque", stock: "Stock" },
+    variantsCount: "{count} variantes",
     form: {
       general: "Général",
       name: "Nom",
@@ -282,6 +283,8 @@ export const admin = {
       width: "l",
       height: "H",
       documentTypes: { DATASHEET: "Fiche technique", SAFETY_SHEET: "Fiche de sécurité", MANUAL: "Notice", CERTIFICATE: "Certificat", OTHER: "Autre" },
+      copyName: "{name} (copie)",
+      unsaved: "Modifications non enregistrées",
     },
     import: {
       title: "Import catalogue (CSV)",
@@ -435,6 +438,8 @@ export const admin = {
       couponTaken: "Code promo déjà utilisé par une autre promotion : {code}",
       valueRequired: "Renseignez la valeur correspondant au type de promotion.",
       targetsRequired: "Sélectionnez au moins une cible pour cette portée.",
+      scopeTypeMismatch: "La portée « Commande entière » n'accepte que les types Pourcentage et Montant fixe.",
+      datesInvalid: "La date de fin doit être postérieure à la date de début.",
       couponRequired: "Une promotion non automatique nécessite au moins un code promo.",
       couponStartsAt: "Début",
       couponEndsAt: "Fin",
@@ -564,7 +569,7 @@ export const admin = {
       taxIdPlaceholder: "Exemple d'identifiant fiscal",
       taxDisplay: "Affichage des prix",
       newProductDays: "Durée « nouveauté » (jours)",
-      freeShippingHint: "0 = pas de franco de port.",
+      freeShippingHint: "Vide ou 0 = pas de franco de port.",
       minimumOrderHint: "0 = pas de minimum.",
       addressLine1: "Adresse",
       postalCode: "Code postal",
@@ -639,5 +644,7 @@ export const admin = {
     search: "Rechercher",
     status: "Statut",
     viewOnSite: "Voir sur le site",
+    imagePathPlaceholder: "/images/… ou https://",
+    documentPathPlaceholder: "/documents/… ou https://",
   },
 } as const;

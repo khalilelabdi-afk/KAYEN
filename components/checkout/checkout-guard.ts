@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser, getPricingContext, canOrder, type CurrentUser } from "@/lib/auth/dal";
 import { getCartDetail, type CartDetail } from "@/services/cart";
 import { getShippingOption } from "@/services/orders";
-import { readCheckoutState, type CheckoutState } from "@/app/actions/checkout";
+import { readCheckoutState, type CheckoutState } from "@/components/checkout/checkout-state";
 import { db } from "@/lib/db";
 import type { ShippingOption } from "@/lib/pricing/types";
 

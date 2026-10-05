@@ -25,6 +25,8 @@ export interface PlaceholderOptions {
   height?: number;
   /** Taille du pictogramme relative à la hauteur (0.3–0.6). */
   scale?: number;
+  /** Afficher la légende texte (SKU) en bas du visuel. */
+  showLabel?: boolean;
 }
 
 function escape(s: string) {
@@ -41,6 +43,7 @@ export function renderPlaceholderSvg(opts: PlaceholderOptions = {}): string {
   const min = Math.min(w, h);
   const pad = Math.round(min * 0.06);
   const label = opts.label ? escape(opts.label) : "";
+  const labelUpper = opts.label ? escape(opts.label.toUpperCase()) : "";
   const fontSize = Math.max(14, Math.round(min * 0.028));
 
   let art = "";
@@ -71,8 +74,8 @@ export function renderPlaceholderSvg(opts: PlaceholderOptions = {}): string {
   }
 
   const plinth = variant === 0 ? `<ellipse cx="${w / 2}" cy="${h / 2 + min * scale * 0.56}" rx="${min * scale * 0.62}" ry="${min * 0.018}" fill="${tone.accent}" opacity="0.45"/>` : "";
-  const labelEl = label
-    ? `<text x="${pad}" y="${h - pad}" font-family="Inter, system-ui, sans-serif" font-size="${fontSize}" font-weight="600" letter-spacing="0.08em" fill="${tone.ink}" opacity="0.55">${label.toUpperCase()}</text>`
+  const labelEl = label && opts.showLabel !== false
+    ? `<text x="${pad}" y="${h - pad}" font-family="Inter, system-ui, sans-serif" font-size="${fontSize}" font-weight="600" letter-spacing="0.08em" fill="${tone.ink}" opacity="0.55">${labelUpper}</text>`
     : "";
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">

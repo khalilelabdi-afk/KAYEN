@@ -29,7 +29,7 @@ export default async function BrandsPage() {
             {featured.map((b) => (
               <li key={b.id}>
                 <Link href={b.href} className="flex h-full flex-col items-center justify-center gap-2 rounded-lg border border-border bg-surface p-4 text-center transition-colors hover:border-ink">
-                  {b.logo ? <Image src={b.logo} alt={b.name} width={160} height={80} className="max-h-12 w-auto object-contain" /> : <span className="font-display text-lg font-extrabold">{b.name}</span>}
+                  {b.logo ? <Image src={b.logo} alt={b.name} width={240} height={120} className="h-14 w-auto object-contain" /> : <span className="font-display text-lg font-extrabold">{b.name}</span>}
                   <span className="text-xs text-muted">{t("catalog.brands.productsCount", { count: b.productCount })}</span>
                 </Link>
               </li>

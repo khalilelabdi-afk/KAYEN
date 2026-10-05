@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { getT } from "@/i18n/server";
 import { getCurrentUser, getPricingContext, canOrder, type ActionResult } from "@/lib/auth/dal";
 import { db } from "@/lib/db";
@@ -11,31 +10,7 @@ import { checkoutInformationSchema, checkoutPaymentSchema, checkoutShippingSchem
 import { placeOrder, type AddressSnapshot } from "@/services/orders";
 import { formatMoney } from "@/lib/money";
 import { getSettings } from "@/services/settings";
-
-/** État du checkout conservé dans un cookie signé-léger (identifiants d'adresses, méthode, références). */
-export const CHECKOUT_COOKIE = "kayen_checkout";
-
-export interface CheckoutState {
-  billingAddressId?: string;
-  shippingAddressId?: string;
-  shippingMethodCode?: string;
-  poReference?: string;
-  deliveryInstructions?: string;
-  notes?: string;
-}
-
-export async function readCheckoutState(): Promise<CheckoutState> {
-  try {
-    const raw = (await cookies()).get(CHECKOUT_COOKIE)?.value;
-    return raw ? (JSON.parse(raw) as CheckoutState) : {};
-  } catch {
-    return {};
-  }
-}
-
-async function writeCheckoutState(state: CheckoutState) {
-  (await cookies()).set(CHECKOUT_COOKIE, JSON.stringify(state), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/checkout", maxAge: 60 * 60 * 2 });
-}
+import { readCheckoutState, writeCheckoutState, clearCheckoutState, type CheckoutState } from "@/components/checkout/checkout-state";
 
 export type CheckoutFormState = { error?: string; fieldErrors?: Record<string, string[]> } | undefined;
 
@@ -92,7 +67,7 @@ export async function checkoutShippingAction(_prev: CheckoutFormState, formData:
   const t = await getT();
   const parsed = checkoutShippingSchema.safeParse(formDataToObject(formData));
   if (!parsed.success) return { error: t("checkout.errors.shippingRequired") };
-  const state = await readCheckoutState();
+  const state: CheckoutState = await readCheckoutState();
   if (!state.shippingAddressId) redirect("/checkout");
   await writeCheckoutState({ ...state, shippingMethodCode: parsed.data.shippingMethodCode });
   redirect("/checkout/payment");
@@ -140,7 +115,7 @@ export async function checkoutPaymentAction(_prev: CheckoutFormState, formData: 
       case "minimum_order": return { error: t("checkout.errors.minimumOrder", { amount: formatMoney(settings.minimumOrderAmount) }) };
     }
   }
-  (await cookies()).set(CHECKOUT_COOKIE, "", { path: "/checkout", maxAge: 0 });
+  await clearCheckoutState();
   revalidatePath("/", "layout");
   redirect(`/checkout/confirmation/${result.orderId}`);
 }

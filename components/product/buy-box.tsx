@@ -153,8 +153,8 @@ export function BuyBox(props: BuyBoxProps) {
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-lg border border-border bg-surface p-3 text-xs">
             <dt className="text-muted">{t("catalog.pdp.packaging")}</dt><dd className="font-medium">{variant.packagingLabel ?? variant.unitLabel}</dd>
             <dt className="text-muted">{t("common.labels.minimum")}</dt><dd className="font-medium">{variant.moq} {unitWord}{variant.moq > 1 ? "s" : ""}{variant.orderMultiple > 1 && ` · ${t("catalog.pdp.multiple", { step: variant.orderMultiple })}`}</dd>
-            <dt className="text-muted">{t("common.labels.shipping")}</dt><dd className="font-medium">{variant.leadTimeDays ? t("common.availability.leadTimeDays", { days: variant.leadTimeDays }) : t("catalog.pdp.delivery", { min: props.leadTime.minDays, max: props.leadTime.maxDays })}</dd>
-            {props.freeShippingThreshold && <><dt className="text-muted">{t("cart.summary.shipping")}</dt><dd className="font-medium">{t("catalog.pdp.freeShippingFrom", { amount: formatMoney(props.freeShippingThreshold) })}</dd></>}
+            <dt className="text-muted">{t("catalog.pdp.leadTimeLabel")}</dt><dd className="font-medium">{variant.leadTimeDays ? t("common.availability.leadTimeDays", { days: variant.leadTimeDays }).replace(/^Délai : /, "") : t("catalog.pdp.delivery", { min: props.leadTime.minDays, max: props.leadTime.maxDays }).replace(/^Livraison estimée : /, "")}</dd>
+            {props.freeShippingThreshold && <><dt className="text-muted">{t("catalog.pdp.freeShippingLabel")}</dt><dd className="font-medium">{t("catalog.pdp.freeShippingFrom", { amount: formatMoney(props.freeShippingThreshold) }).replace(/^Franco /, "")}</dd></>}
           </dl>
 
           <TierTable rows={tierTable} unit={unitWord} />

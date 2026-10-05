@@ -3,15 +3,24 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { getT } from "@/i18n/server";
-import { db, type Prisma } from "@/lib/db";
+import { db, Prisma } from "@/lib/db";
 import { requireStaff, type ActionResult } from "@/lib/auth/dal";
-import { fieldErrors, idSchema, optionalText, slugSchema } from "@/lib/validation/common";
+import { idSchema, optionalText, slugSchema } from "@/lib/validation/common";
+import type { Translator } from "@/i18n";
 import { slugify } from "@/lib/utils";
 import { CMS_TAG, defaultHomeSections, type HomeSectionConfig } from "@/services/cms";
 import { SECTORS_TAG } from "@/services/catalog/sectors";
 
+/** Erreurs Zod → messages traduits par champ (obligatoire / invalide). */
+function issues(t: Translator, error: z.ZodError): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const i of error.issues) { const path = i.path.join(".") || "_"; (out[path] ??= []).push(i.code === "too_small" ? t("common.errors.required") : t("common.errors.validation")); }
+  return out;
+}
+
+const json = (v: unknown) => (v === null || v === undefined ? Prisma.DbNull : (v as Prisma.InputJsonValue));
 async function audit(userId: string, action: string, entityType: string, entityId: string, before?: unknown, after?: unknown) {
-  await db.auditLog.create({ data: { userId, action, entityType, entityId, before: before as Prisma.InputJsonValue, after: after as Prisma.InputJsonValue } });
+  await db.auditLog.create({ data: { userId, action, entityType, entityId, before: json(before), after: json(after) } });
 }
 
 const parseList = (value: string | undefined) => (value ?? "").split(",").map((s) => s.trim()).filter(Boolean);
@@ -54,7 +63,7 @@ export async function homeSectionSaveAction(input: HomeSectionInput): Promise<Ac
   const t = await getT();
   const user = await requireStaff();
   const parsed = homeSectionSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const { id, limit, productSkus, categorySlugs, variant, ...rest } = parsed.data;
   const config: HomeSectionConfig = {};
   if (limit) config.limit = limit;
@@ -72,23 +81,31 @@ export async function homeSectionSaveAction(input: HomeSectionInput): Promise<Ac
 }
 
 export async function homeSectionToggleAction(input: { id: string; isActive: boolean }): Promise<ActionResult> {
+  const t = await getT();
   const user = await requireStaff();
-  await db.homeSection.update({ where: { id: input.id }, data: { isActive: input.isActive } });
-  await audit(user.id, "homeSection.toggle", "HomeSection", input.id, null, { isActive: input.isActive });
+  const parsed = z.object({ id: idSchema, isActive: z.boolean() }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const before = await db.homeSection.findUnique({ where: { id: parsed.data.id }, select: { isActive: true } });
+  if (!before) return { ok: false, error: t("common.errors.notFound") };
+  await db.homeSection.update({ where: { id: parsed.data.id }, data: { isActive: parsed.data.isActive } });
+  await audit(user.id, "homeSection.toggle", "HomeSection", parsed.data.id, { isActive: before.isActive }, { isActive: parsed.data.isActive });
   revalidateCms("/", "/admin/homepage");
   return { ok: true };
 }
 
 export async function homeSectionMoveAction(input: { id: string; direction: "up" | "down" }): Promise<ActionResult> {
+  const t = await getT();
   const user = await requireStaff();
+  const parsed = z.object({ id: idSchema, direction: z.enum(["up", "down"]) }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
   const rows = await db.homeSection.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: { id: true } });
-  const i = rows.findIndex((r) => r.id === input.id);
-  const j = input.direction === "up" ? i - 1 : i + 1;
+  const i = rows.findIndex((r) => r.id === parsed.data.id);
+  const j = parsed.data.direction === "up" ? i - 1 : i + 1;
   if (i < 0 || j < 0 || j >= rows.length) return { ok: true };
   const order = rows.map((r) => r.id);
   [order[i], order[j]] = [order[j], order[i]];
   await db.$transaction(order.map((id, idx) => db.homeSection.update({ where: { id }, data: { sortOrder: idx } })));
-  await audit(user.id, "homeSection.move", "HomeSection", input.id, { position: i }, { position: j });
+  await audit(user.id, "homeSection.move", "HomeSection", parsed.data.id, { position: i }, { position: j });
   revalidateCms("/", "/admin/homepage");
   return { ok: true };
 }
@@ -96,7 +113,9 @@ export async function homeSectionMoveAction(input: { id: string; direction: "up"
 export async function homeSectionDeleteAction(input: { id: string }): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
-  const row = await db.homeSection.findUnique({ where: { id: input.id } });
+  const parsed = z.object({ id: idSchema }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const row = await db.homeSection.findUnique({ where: { id: parsed.data.id } });
   if (!row) return { ok: true };
   await db.homeSection.delete({ where: { id: row.id } });
   await audit(user.id, "homeSection.delete", "HomeSection", row.id, { type: row.type, title: row.title }, null);
@@ -116,7 +135,7 @@ export async function sectorSaveAction(input: SectorInput): Promise<ActionResult
   const t = await getT();
   const user = await requireStaff();
   const parsed = sectorSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const { id, categoryIds, productSkus, ...rest } = parsed.data;
   if (await db.sector.findFirst({ where: { slug: rest.slug, ...(id ? { NOT: { id } } : {}) }, select: { id: true } })) return { ok: false, error: t("common.errors.validation"), fieldErrors: { slug: [t("common.errors.validation")] } };
   const { ids: productIds, unknown } = await resolveProductSkus(parseList(productSkus));
@@ -134,7 +153,7 @@ export async function sectorSaveAction(input: SectorInput): Promise<ActionResult
   });
   await audit(user.id, before ? "sector.update" : "sector.create", "Sector", row.id, before ? { name: before.name, slug: before.slug, isActive: before.isActive } : null, { name: row.name, slug: row.slug, isActive: row.isActive, categoryIds, productIds });
   revalidateTag(SECTORS_TAG, "max");
-  revalidatePath("/admin/sectors"); revalidatePath("/professionnels"); revalidatePath(`/professionnels/${row.slug}`);
+  revalidatePath("/"); revalidatePath("/admin/sectors"); revalidatePath(`/admin/sectors/${row.id}`); revalidatePath("/professionnels"); revalidatePath(`/professionnels/${row.slug}`);
   if (before && before.slug !== row.slug) revalidatePath(`/professionnels/${before.slug}`);
   return { ok: true, data: { id: row.id }, message: t("admin.cms.sectors.form.saved") };
 }
@@ -142,12 +161,14 @@ export async function sectorSaveAction(input: SectorInput): Promise<ActionResult
 export async function sectorDeleteAction(input: { id: string }): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
-  const row = await db.sector.findUnique({ where: { id: input.id } });
+  const parsed = z.object({ id: idSchema }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const row = await db.sector.findUnique({ where: { id: parsed.data.id } });
   if (!row) return { ok: true };
   await db.sector.delete({ where: { id: row.id } });
   await audit(user.id, "sector.delete", "Sector", row.id, { name: row.name, slug: row.slug }, null);
   revalidateTag(SECTORS_TAG, "max");
-  revalidatePath("/admin/sectors"); revalidatePath("/professionnels"); revalidatePath(`/professionnels/${row.slug}`);
+  revalidatePath("/"); revalidatePath("/admin/sectors"); revalidatePath("/professionnels"); revalidatePath(`/professionnels/${row.slug}`);
   return { ok: true, message: t("admin.cms.sectors.deleted") };
 }
 
@@ -159,7 +180,7 @@ export async function cmsPageSaveAction(input: CmsPageInput): Promise<ActionResu
   const t = await getT();
   const user = await requireStaff();
   const parsed = pageSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const { id, ...rest } = parsed.data;
   if (await db.cmsPage.findFirst({ where: { slug: rest.slug, ...(id ? { NOT: { id } } : {}) }, select: { id: true } })) return { ok: false, error: t("common.errors.validation"), fieldErrors: { slug: [t("common.errors.validation")] } };
   const before = id ? await db.cmsPage.findUnique({ where: { id } }) : null;
@@ -175,7 +196,9 @@ export async function cmsPageSaveAction(input: CmsPageInput): Promise<ActionResu
 export async function cmsPageDeleteAction(input: { id: string }): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
-  const row = await db.cmsPage.findUnique({ where: { id: input.id } });
+  const parsed = z.object({ id: idSchema }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const row = await db.cmsPage.findUnique({ where: { id: parsed.data.id } });
   if (!row) return { ok: true };
   await db.cmsPage.delete({ where: { id: row.id } });
   await audit(user.id, "cmsPage.delete", "CmsPage", row.id, { title: row.title, slug: row.slug }, null);
@@ -195,7 +218,7 @@ export async function guideSaveAction(input: GuideInput): Promise<ActionResult<{
   const t = await getT();
   const user = await requireStaff();
   const parsed = guideSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const { id, productSkus, publishedAt, categoryId, ...rest } = parsed.data;
   if (await db.blogPost.findFirst({ where: { slug: rest.slug, ...(id ? { NOT: { id } } : {}) }, select: { id: true } })) return { ok: false, error: t("common.errors.validation"), fieldErrors: { slug: [t("common.errors.validation")] } };
   const { ids: productIds, unknown } = await resolveProductSkus(parseList(productSkus));
@@ -219,7 +242,9 @@ export async function guideSaveAction(input: GuideInput): Promise<ActionResult<{
 export async function guideDeleteAction(input: { id: string }): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
-  const row = await db.blogPost.findUnique({ where: { id: input.id } });
+  const parsed = z.object({ id: idSchema }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const row = await db.blogPost.findUnique({ where: { id: parsed.data.id } });
   if (!row) return { ok: true };
   await db.blogPost.delete({ where: { id: row.id } });
   await audit(user.id, "guide.delete", "BlogPost", row.id, { title: row.title, slug: row.slug }, null);
@@ -231,7 +256,7 @@ export async function blogCategoryAction(input: { name: string; slug?: string })
   const t = await getT();
   const user = await requireStaff();
   const parsed = z.object({ name: z.string().trim().min(2).max(80), slug: z.string().trim().max(120).optional() }).safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const slug = slugify(parsed.data.slug || parsed.data.name);
   if (!slugSchema.safeParse(slug).success) return { ok: false, error: t("common.errors.validation"), fieldErrors: { slug: [t("common.errors.validation")] } };
   if (await db.blogCategory.findUnique({ where: { slug } })) return { ok: false, error: t("common.errors.validation"), fieldErrors: { slug: [t("common.errors.validation")] } };
@@ -250,7 +275,7 @@ export async function faqSaveAction(input: FaqInput): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
   const parsed = faqSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const { id, ...data } = parsed.data;
   const before = id ? await db.faq.findUnique({ where: { id } }) : null;
   if (id && !before) return { ok: false, error: t("common.errors.notFound") };
@@ -263,7 +288,9 @@ export async function faqSaveAction(input: FaqInput): Promise<ActionResult> {
 export async function faqDeleteAction(input: { id: string }): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
-  const row = await db.faq.findUnique({ where: { id: input.id } });
+  const parsed = z.object({ id: idSchema }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const row = await db.faq.findUnique({ where: { id: parsed.data.id } });
   if (!row) return { ok: true };
   await db.faq.delete({ where: { id: row.id } });
   await audit(user.id, "faq.delete", "Faq", row.id, { question: row.question, category: row.category }, null);

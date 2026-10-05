@@ -16,7 +16,7 @@ import { guides, guideCategories } from "./data/guides";
 import { faqs } from "./data/faq";
 import { pages } from "./data/pages";
 import { synonyms } from "./data/synonyms";
-import type { SeedCategory, SeedProduct } from "./types";
+import type { SeedCategory } from "./types";
 
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 

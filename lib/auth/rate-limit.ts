@@ -25,6 +25,13 @@ export async function rateLimit(key: string, limit: number, windowSeconds: numbe
   return { ok: updated.count <= limit, remaining: Math.max(0, limit - updated.count), resetAt: bucket.resetAt };
 }
 
+/** Vérifie la limite sans consommer (pour ne compter que les échecs). */
+export async function isRateLimited(key: string, limit: number): Promise<boolean> {
+  const bucket = await db.rateLimitBucket.findUnique({ where: { key } });
+  if (!bucket || bucket.resetAt <= new Date()) return false;
+  return bucket.count >= limit;
+}
+
 /** Nettoyage opportuniste des seaux expirés (appelé rarement). */
 export async function pruneRateLimits() {
   await db.rateLimitBucket.deleteMany({ where: { resetAt: { lt: new Date() } } });

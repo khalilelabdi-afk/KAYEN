@@ -19,7 +19,7 @@ type Props = { params: Promise<{ sector: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sector = await getSectorBySlug((await params).sector);
   if (!sector) return {};
-  return { title: sector.seoTitle ?? sector.name, description: sector.seoDescription ?? sector.description ?? undefined, alternates: { canonical: sector.href } };
+  return { title: sector.seoTitle ? { absolute: sector.seoTitle } : sector.name, description: sector.seoDescription ?? sector.description ?? undefined, alternates: { canonical: sector.href } };
 }
 
 export default async function SectorPage({ params }: Props) {

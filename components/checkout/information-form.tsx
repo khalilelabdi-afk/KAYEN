@@ -8,7 +8,8 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Field, FormError } from "@/components/ui/field";
 import { CheckboxField, RadioGroup, RadioCard } from "@/components/ui/checkbox";
 import { AddressFormFields } from "./address-form-fields";
-import { checkoutInformationAction, type CheckoutFormState, type CheckoutState } from "@/app/actions/checkout";
+import { checkoutInformationAction, type CheckoutFormState } from "@/app/actions/checkout";
+import type { CheckoutState } from "@/components/checkout/checkout-state";
 
 export interface AddressOption { id: string; label: string | null; company: string | null; line1: string; line2: string | null; postalCode: string; city: string; countryCode: string; isDefaultBilling: boolean; isDefaultShipping: boolean }
 

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-label="FIT-RAC-HAL-3NIV">
+<rect width="1200" height="1200" fill="#E6E3DC"/>
+<rect x="36" y="36" width="1128" height="1128" fill="none" stroke="#BDB8AD" stroke-opacity="0.55" stroke-width="2" rx="14"/>
+<ellipse cx="600" cy="882.24" rx="312.48" ry="21.599999999999998" fill="#BDB8AD" opacity="0.45"/><g transform="translate(348 324) scale(7.875)" fill="none" stroke="#2B2A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M12 8h40v48H12z"/><path d="M12 24h40M12 40h40"/><path d="M18 16h8M18 32h12M18 48h6"/></g><text x="72" y="1128" font-family="Inter, system-ui, sans-serif" font-size="34" font-weight="600" letter-spacing="0.08em" fill="#2B2A26" opacity="0.55">FIT-RAC-HAL-3NIV</text>
+</svg>

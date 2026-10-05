@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-label="HYG-GAN-NIT-100">
+<rect width="1200" height="1200" fill="#E2E6E7"/>
+<rect x="36" y="36" width="1128" height="1128" fill="none" stroke="#AEB9BC" stroke-opacity="0.55" stroke-width="2" rx="14"/>
+<g transform="translate(272.40000000000003 206.88) scale(14.625)" fill="none" stroke="#262C2E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.82"><path d="M22 56V30a4 4 0 0 1 8 0v-12a4 4 0 0 1 8 0v12M38 32v-6a4 4 0 0 1 8 0v14c0 8-4 16-10 16H30"/><path d="M22 36h-4a4 4 0 0 0-4 4v4"/></g><text x="72" y="1128" font-family="Inter, system-ui, sans-serif" font-size="34" font-weight="600" letter-spacing="0.08em" fill="#262C2E" opacity="0.55">HYG-GAN-NIT-100</text>
+</svg>

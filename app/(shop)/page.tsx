@@ -53,7 +53,7 @@ export default async function HomePage() {
         case "BANNER":
           return <QuoteBanner key={s.id} title={s.title} subtitle={s.subtitle} ctaLabel={s.ctaLabel} ctaHref={s.ctaHref} variant={s.config.variant} />;
         case "BRANDS":
-          return <BrandsStrip key={s.id} brands={await getFeaturedBrands(limit ?? 8)} title={s.title} />;
+          return <BrandsStrip key={s.id} brands={await getFeaturedBrands(limit ?? 6)} title={s.title} />;
         case "GUIDES":
           return <GuidesSection key={s.id} guides={await getGuides(limit ?? 3)} title={s.title} />;
         default:

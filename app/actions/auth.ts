@@ -1,11 +1,12 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { LOCALE_COOKIE, isLocale } from "@/i18n/config";
 import { redirect } from "next/navigation";
 import { getT } from "@/i18n/server";
 import { getCurrentUser, type ActionResult } from "@/lib/auth/dal";
 import { createSession, destroySession } from "@/lib/auth/session";
-import { rateLimit } from "@/lib/auth/rate-limit";
+import { rateLimit, isRateLimited } from "@/lib/auth/rate-limit";
 import { fieldErrors, formDataToObject } from "@/lib/validation/common";
 import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validation/auth";
 import { authenticate, registerBusinessAccount, requestPasswordReset, resetPassword, resendVerification } from "@/services/auth";
@@ -34,13 +35,19 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   const raw = formDataToObject(formData);
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) return { error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error), values: keepValues(raw, ["email"]) };
-  const limit = await rateLimit(await clientKey("login"), 10, 15 * 60);
-  if (!limit.ok) return { error: t("common.errors.rateLimited"), values: keepValues(raw, ["email"]) };
+  const key = await clientKey(`login:${parsed.data.email}`);
+  if (await isRateLimited(key, 10)) return { error: t("common.errors.rateLimited"), values: keepValues(raw, ["email"]) };
   const result = await authenticate(parsed.data.email, parsed.data.password);
-  if (!result.ok) return { error: result.error === "inactive" ? t("common.errors.accountInactive") : t("common.errors.invalidCredentials"), values: keepValues(raw, ["email"]) };
+  if (!result.ok) {
+    await rateLimit(key, 10, 15 * 60); // seuls les échecs sont comptés
+    return { error: result.error === "inactive" ? t("common.errors.accountInactive") : t("common.errors.invalidCredentials"), values: keepValues(raw, ["email"]) };
+  }
   await createSession(result.userId);
   const user = await getCurrentUser();
-  if (user) await mergeGuestCart(user);
+  if (user) {
+    await mergeGuestCart(user);
+    if (isLocale(user.locale)) (await cookies()).set(LOCALE_COOKIE, user.locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+  }
   redirect(safeNext(parsed.data.next));
 }
 

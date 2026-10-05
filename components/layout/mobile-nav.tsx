@@ -87,7 +87,7 @@ function MobileMenu({ open, onOpenChange, nav, user }: { open: boolean; onOpenCh
     if (!open) setStack([]);
   }
   const current = stack[stack.length - 1] ?? null;
-  const list = current ? current.children : nav.categories;
+  const list = (current ? current.children : nav.categories).filter((c) => c.productCount > 0 || !current);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="Hôtel">
+<rect width="1600" height="1000" fill="#EADDD3"/>
+<rect x="30" y="30" width="1540" height="940" fill="none" stroke="#C8A897" stroke-opacity="0.55" stroke-width="2" rx="12"/>
+<ellipse cx="800" cy="712.8" rx="235.6" ry="18" fill="#C8A897" opacity="0.45"/><g transform="translate(610 290) scale(5.9375)" fill="none" stroke="#2E2724" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M8 40V24a4 4 0 0 1 4-4h40a4 4 0 0 1 4 4v16"/><path d="M8 40h48v10H8z"/><path d="M14 28h16v8H14zM34 28h16v8H34z"/></g>
+</svg>

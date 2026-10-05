@@ -13,7 +13,7 @@ type Props = { params: Promise<{ slug: string }>; searchParams: Promise<RawSearc
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const brand = await getBrandBySlug((await params).slug);
   if (!brand) return {};
-  return { title: brand.name, description: brand.description ?? undefined, alternates: { canonical: brand.href } };
+  return { title: brand.seoTitle ? { absolute: brand.seoTitle } : brand.name, description: brand.seoDescription ?? brand.description ?? undefined, alternates: { canonical: brand.href } };
 }
 
 export default async function BrandPage({ params, searchParams }: Props) {

@@ -18,6 +18,7 @@ function toNav(node: CategoryNode, depth = 0): NavCategory {
     icon: node.icon,
     image: node.image,
     productCount: node.productCount,
+    showInNav: node.showInNav,
     children: depth < 2 ? node.children.map((c) => toNav(c, depth + 1)) : [],
   };
 }
@@ -25,7 +26,7 @@ function toNav(node: CategoryNode, depth = 0): NavCategory {
 export async function getNavData(): Promise<NavData> {
   const [tree, sectors, brands] = await Promise.all([getCategoryTree(), getSectors(), getFeaturedBrands(8)]);
   return {
-    categories: tree.filter((c) => c.showInNav || true).map((c) => toNav(c)),
+    categories: tree.map((c) => toNav(c)),
     sectors: sectors.map((s) => ({ name: s.name, href: s.href, icon: s.icon })),
     brands: brands.map((b) => ({ name: b.name, href: b.href })),
   };

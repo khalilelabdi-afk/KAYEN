@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="Commerce">
+<rect width="1600" height="1000" fill="#F0EBE1"/>
+<rect x="30" y="30" width="1540" height="940" fill="none" stroke="#D2C8B4" stroke-opacity="0.55" stroke-width="2" rx="12"/>
+<ellipse cx="800" cy="712.8" rx="235.6" ry="18" fill="#D2C8B4" opacity="0.45"/><g transform="translate(610 290) scale(5.9375)" fill="none" stroke="#2B2A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M6 10h8l6 30h30l6-20H18"/><circle cx="24" cy="50" r="4"/><circle cx="46" cy="50" r="4"/></g>
+</svg>

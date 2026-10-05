@@ -6,12 +6,16 @@ import type { PricingPromotion, PricingContext, VariantPricingInput, UnitPriceRe
 import { calculateUnitPrice } from "@/lib/pricing/engine";
 import { getCategoryAncestorIds, getCategoryDescendantIds } from "./catalog/categories";
 import { getDefaultTaxRateBps } from "./settings";
+import { deserializePromotions, type ClientPromotion } from "@/lib/pricing/serialize";
 
 export const PROMOTIONS_TAG = "promotions";
 
-/** Promotions actives (fenêtre temporelle vérifiée côté moteur avec `now`). */
-export const getActivePromotions = unstable_cache(
-  async (): Promise<PricingPromotion[]> => {
+/**
+ * Promotions actives (fenêtre temporelle vérifiée côté moteur avec `now`).
+ * Le cache sérialise en JSON : les dates sont stockées en ISO puis reconverties.
+ */
+const getActivePromotionsRaw = unstable_cache(
+  async (): Promise<ClientPromotion[]> => {
     const now = new Date();
     const rows = await db.promotion.findMany({
       where: {
@@ -35,8 +39,8 @@ export const getActivePromotions = unstable_cache(
       isAutomatic: p.isAutomatic,
       showBadge: p.showBadge,
       badgeLabel: p.badgeLabel,
-      startsAt: p.startsAt,
-      endsAt: p.endsAt,
+      startsAt: p.startsAt?.toISOString() ?? null,
+      endsAt: p.endsAt?.toISOString() ?? null,
       customerGroupId: p.customerGroupId,
       productIds: p.products.map((x) => x.productId),
       categoryIds: p.categories.map((x) => x.categoryId),
@@ -46,6 +50,10 @@ export const getActivePromotions = unstable_cache(
   ["active-promotions"],
   { tags: [PROMOTIONS_TAG], revalidate: 60 },
 );
+
+export async function getActivePromotions(): Promise<PricingPromotion[]> {
+  return deserializePromotions(await getActivePromotionsRaw());
+}
 
 /** Ids des produits ciblés par au moins une promotion produit automatique active. */
 export async function getPromotedProductIds(): Promise<string[]> {

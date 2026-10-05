@@ -148,6 +148,8 @@ export const catalog = {
     delivery: "Livraison estimée : {min}–{max} jours ouvrés",
     deliveryGeneric: "Livraison professionnelle, délais indiqués au panier",
     freeShippingFrom: "Franco à partir de {amount} HT",
+    freeShippingLabel: "Franco de port",
+    leadTimeLabel: "Délai",
     stock: "Stock",
     loginForPrice: "Connectez-vous pour voir votre tarif professionnel",
     loginCta: "Se connecter",

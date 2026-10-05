@@ -3,13 +3,22 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { getT } from "@/i18n/server";
-import { db, type Prisma } from "@/lib/db";
+import { db, Prisma } from "@/lib/db";
 import { requireStaff, type ActionResult } from "@/lib/auth/dal";
-import { emailSchema, fieldErrors, idSchema, moneySchema, optionalText } from "@/lib/validation/common";
+import { emailSchema, idSchema, moneySchema, optionalText } from "@/lib/validation/common";
+import type { Translator } from "@/i18n";
 import { getSettings, setSetting, SETTINGS_TAG, type CommerceSettings } from "@/services/settings";
 
+/** Erreurs Zod → messages traduits par champ (obligatoire / invalide). */
+function issues(t: Translator, error: z.ZodError): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const i of error.issues) { const path = i.path.join(".") || "_"; (out[path] ??= []).push(i.code === "too_small" ? t("common.errors.required") : t("common.errors.validation")); }
+  return out;
+}
+
+const json = (v: unknown) => (v === null || v === undefined ? Prisma.DbNull : (v as Prisma.InputJsonValue));
 async function audit(userId: string, action: string, entityType: string, entityId: string, before?: unknown, after?: unknown) {
-  await db.auditLog.create({ data: { userId, action, entityType, entityId, before: before as Prisma.InputJsonValue, after: after as Prisma.InputJsonValue } });
+  await db.auditLog.create({ data: { userId, action, entityType, entityId, before: json(before), after: json(after) } });
 }
 
 const pick = <K extends keyof CommerceSettings>(s: CommerceSettings, keys: K[]) => Object.fromEntries(keys.map((k) => [k, s[k]])) as Pick<CommerceSettings, K>;
@@ -35,14 +44,14 @@ export async function settingsContactAction(input: ContactSettingsInput): Promis
   const t = await getT();
   const user = await requireStaff();
   const parsed = contactSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   await saveSettings(user.id, "contact", parsed.data);
   return { ok: true, message: t("admin.settings.saved") };
 }
 
 // ── Commerce ───────────────────────────────────────────────────────────────
 const commerceSchema = z.object({
-  freeShippingThreshold: moneySchema, minimumOrderAmount: moneySchema, quoteValidityDays: z.coerce.number().int().min(1).max(365),
+  freeShippingThreshold: moneySchema.nullable(), minimumOrderAmount: moneySchema, quoteValidityDays: z.coerce.number().int().min(1).max(365),
   defaultLeadTime: z.object({ minDays: z.coerce.number().int().min(0).max(120), maxDays: z.coerce.number().int().min(0).max(180) }).refine((v) => v.maxDays >= v.minDays, { path: ["maxDays"], message: "max_lt_min" }),
   taxIdLabel: z.string().trim().min(2).max(80), taxIdPlaceholder: z.string().trim().max(40), taxDisplay: z.enum(["HT", "TTC"]),
   bankDetails: z.string().trim().max(2000), returnPolicy: z.string().trim().max(2000), announcement: z.string().trim().max(200), newProductDays: z.coerce.number().int().min(0).max(365),
@@ -53,7 +62,7 @@ export async function settingsCommerceAction(input: CommerceSettingsInput): Prom
   const t = await getT();
   const user = await requireStaff();
   const parsed = commerceSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   await saveSettings(user.id, "commerce", parsed.data);
   return { ok: true, message: t("admin.settings.saved") };
 }
@@ -72,7 +81,7 @@ export async function shippingMethodSaveAction(input: ShippingMethodInput): Prom
   const t = await getT();
   const user = await requireStaff();
   const parsed = shippingSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const { id, countryCodes, ...rest } = parsed.data;
   const codes = countryCodes.split(",").map((c) => c.trim().toUpperCase()).filter(Boolean);
   if (codes.some((c) => !/^[A-Z]{2}$/.test(c))) return { ok: false, error: t("common.errors.validation"), fieldErrors: { countryCodes: [t("common.errors.validation")] } };
@@ -89,7 +98,9 @@ export async function shippingMethodSaveAction(input: ShippingMethodInput): Prom
 export async function shippingMethodDeleteAction(input: { id: string }): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
-  const row = await db.shippingMethod.findUnique({ where: { id: input.id } });
+  const parsed = z.object({ id: idSchema }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const row = await db.shippingMethod.findUnique({ where: { id: parsed.data.id } });
   if (!row) return { ok: true };
   await db.shippingMethod.delete({ where: { id: row.id } });
   await audit(user.id, "shippingMethod.delete", "ShippingMethod", row.id, { code: row.code, name: row.name }, null);
@@ -101,13 +112,13 @@ export async function shippingMethodDeleteAction(input: { id: string }): Promise
 const taxSchema = z.object({ id: idSchema.optional(), code: z.string().trim().min(2).max(40).regex(/^[a-z0-9-]+$/), name: z.string().trim().min(2).max(80), rateBps: z.coerce.number().int().min(0).max(10_000), isDefault: z.boolean() });
 export type TaxClassInput = z.infer<typeof taxSchema>;
 
-const revalidateTaxes = () => { revalidateTag("taxes", "max"); revalidateTag(SETTINGS_TAG, "max"); revalidatePath("/admin/settings"); };
+const revalidateTaxes = () => { revalidateTag("taxes", "max"); revalidateTag(SETTINGS_TAG, "max"); revalidateTag("products", "max"); revalidatePath("/admin/settings"); };
 
 export async function taxClassSaveAction(input: TaxClassInput): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
   const parsed = taxSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation"), fieldErrors: issues(t, parsed.error) };
   const { id, ...data } = parsed.data;
   if (await db.taxClass.findFirst({ where: { code: data.code, ...(id ? { NOT: { id } } : {}) }, select: { id: true } })) return { ok: false, error: t("common.errors.validation"), fieldErrors: { code: [t("common.errors.validation")] } };
   const before = id ? await db.taxClass.findUnique({ where: { id } }) : null;
@@ -125,7 +136,9 @@ export async function taxClassSaveAction(input: TaxClassInput): Promise<ActionRe
 export async function taxClassDeleteAction(input: { id: string }): Promise<ActionResult> {
   const t = await getT();
   const user = await requireStaff();
-  const row = await db.taxClass.findUnique({ where: { id: input.id } });
+  const parsed = z.object({ id: idSchema }).safeParse(input);
+  if (!parsed.success) return { ok: false, error: t("common.errors.validation") };
+  const row = await db.taxClass.findUnique({ where: { id: parsed.data.id } });
   if (!row) return { ok: true };
   if (row.isDefault) return { ok: false, error: t("admin.settings.taxes.cannotDeleteDefault") };
   await db.taxClass.delete({ where: { id: row.id } });

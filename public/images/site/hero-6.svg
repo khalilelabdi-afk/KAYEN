@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-label="Bureau">
+<rect width="800" height="800" fill="#E6E3DC"/>
+<rect x="24" y="24" width="752" height="752" fill="none" stroke="#BDB8AD" stroke-opacity="0.55" stroke-width="2" rx="10"/>
+<ellipse cx="400" cy="606.08" rx="228.16" ry="14.399999999999999" fill="#BDB8AD" opacity="0.45"/><g transform="translate(216 200) scale(5.75)" fill="none" stroke="#2B2A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M8 24h48v6H8z"/><path d="M12 30v26M52 30v26M36 30v14h16"/></g>
+</svg>

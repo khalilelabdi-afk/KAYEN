@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { LOCALE_COOKIE } from "@/i18n/config";
 import { z } from "zod";
 import { getT } from "@/i18n/server";
 import { db } from "@/lib/db";
@@ -220,6 +222,7 @@ export async function updateProfileAction(_prev: FormState, formData: FormData):
   const parsed = profileSchema.safeParse(formDataToObject(formData));
   if (!parsed.success) return { error: t("common.errors.validation"), fieldErrors: fieldErrors(parsed.error) };
   await db.user.update({ where: { id: user.id }, data: { firstName: parsed.data.firstName, lastName: parsed.data.lastName, phone: parsed.data.phone || null, ...(parsed.data.locale ? { locale: parsed.data.locale } : {}) } });
+  if (parsed.data.locale) (await cookies()).set(LOCALE_COOKIE, parsed.data.locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
   revalidatePath("/", "layout");
   return { success: t("account.settings.profileSaved") };
 }

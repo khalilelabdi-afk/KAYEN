@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="Beauté &amp; Spa">
+<rect width="1600" height="1000" fill="#DDDFE4"/>
+<rect x="30" y="30" width="1540" height="940" fill="none" stroke="#A6ABB8" stroke-opacity="0.55" stroke-width="2" rx="12"/>
+<ellipse cx="800" cy="712.8" rx="235.6" ry="18" fill="#A6ABB8" opacity="0.45"/><g transform="translate(610 290) scale(5.9375)" fill="none" stroke="#24262B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M14 10h36v44H14z"/><path d="M14 20h36M14 44h36"/><path d="M22 10v10M42 10v10"/></g>
+</svg>

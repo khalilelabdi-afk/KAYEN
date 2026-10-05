@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="Événementiel">
+<rect width="1600" height="1000" fill="#E6E3DC"/>
+<rect x="30" y="30" width="1540" height="940" fill="none" stroke="#BDB8AD" stroke-opacity="0.55" stroke-width="2" rx="12"/>
+<ellipse cx="800" cy="712.8" rx="235.6" ry="18" fill="#BDB8AD" opacity="0.45"/><g transform="translate(610 290) scale(5.9375)" fill="none" stroke="#2B2A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M32 8 4 52h56z"/><path d="M32 8v44M22 52l10-20 10 20"/></g>
+</svg>

@@ -12,6 +12,8 @@ export interface BrandSummary {
   logo: string | null;
   website: string | null;
   isFeatured: boolean;
+  seoTitle: string | null;
+  seoDescription: string | null;
   productCount: number;
   href: string;
 }
@@ -31,6 +33,8 @@ export const getBrands = unstable_cache(
       logo: b.logo,
       website: b.website,
       isFeatured: b.isFeatured,
+      seoTitle: b.seoTitle,
+      seoDescription: b.seoDescription,
       productCount: b._count.products,
       href: `/brand/${b.slug}`,
     }));

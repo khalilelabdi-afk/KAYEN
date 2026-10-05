@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Catalogue", () => {
   test("recherche produit avec suggestions et page de résultats", async ({ page }) => {
     await page.goto("/");
-    const input = page.getByRole("searchbox", { name: /rechercher/i }).first();
+    const input = page.getByRole("combobox", { name: /rechercher/i }).first();
     await input.fill("gobelet");
     await expect(page.getByRole("listbox")).toBeVisible();
     await expect(page.getByRole("listbox").getByRole("option").first()).toBeVisible();

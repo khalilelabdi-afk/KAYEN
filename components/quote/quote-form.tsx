@@ -21,7 +21,7 @@ export function QuoteForm({ source, initialItems, cartCount, defaults }: { sourc
   const fe = state?.fieldErrors ?? {};
 
   return (
-    <form action={action} onSubmit={() => track({ name: "request_quote", params: { source, items: items.length || cartCount } })} className="space-y-8" noValidate encType="multipart/form-data">
+    <form action={action} onSubmit={() => track({ name: "request_quote", params: { source, items: items.length || cartCount } })} className="space-y-8" noValidate>
       <input type="hidden" name="source" value={source} />
       <FormError message={state?.error} />
 

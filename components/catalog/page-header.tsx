@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Breadcrumb, type Crumb } from "@/components/ui/breadcrumb";
+import { CategoryIcon } from "@/components/layout/category-icon";
 import { JsonLd, breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import type { CategoryNode } from "@/services/catalog/categories";
 
@@ -21,8 +21,8 @@ export function CatalogPageHeader({ crumbs, breadcrumbLabel, title, description,
             {subcategories.map((c) => (
               <li key={c.id} className="w-40 shrink-0 md:w-auto">
                 <Link href={c.href} className="group flex items-center gap-3 rounded-lg border border-border bg-surface p-2 transition-colors hover:border-ink">
-                  <span className="relative size-12 shrink-0 overflow-hidden rounded-md bg-paper-2">
-                    <Image src={c.image ?? `/images/categories/${c.slug}.svg`} alt="" fill sizes="48px" className="object-cover" />
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-accent-softer text-accent">
+                    <CategoryIcon icon={c.icon} className="size-5" />
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium group-hover:text-accent">{c.name}</span>

@@ -23,7 +23,7 @@ export function PaymentForm({ total, invoiceAllowed, invoiceDays, cardProvider }
       <RadioGroup name="paymentMethod" value={method} onValueChange={(v) => setMethod(v as typeof method)}>
         <RadioCard value="CARD" id="pay-card" title={<span className="inline-flex items-center gap-2"><CreditCard className="size-4" />{t("checkout.payment.card")}</span>} description={t("checkout.payment.cardDesc")}>
           {method === "CARD" && (
-            <div className="mt-3 space-y-3" onClick={(e) => e.stopPropagation()}>
+            <div className="mt-3 space-y-3">
               {cardProvider === "mock" && <p className="rounded-md bg-info-soft px-3 py-2 text-xs text-info">{t("checkout.payment.mockNotice")}</p>}
               <Field id="cardName" label={t("checkout.payment.cardName")} required><Input name="cardName" autoComplete="cc-name" required /></Field>
               <Field id="cardNumber" label={t("checkout.payment.cardNumber")} required><Input name="cardNumber" inputMode="numeric" autoComplete="cc-number" placeholder="4242 4242 4242 4242" required /></Field>

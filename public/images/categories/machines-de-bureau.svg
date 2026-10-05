@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="Machines à café de bureau">
+<rect width="1200" height="900" fill="#EDE7DA"/>
+<rect x="27" y="27" width="1146" height="846" fill="none" stroke="#C9B99A" stroke-opacity="0.55" stroke-width="2" rx="11"/>
+<ellipse cx="600" cy="651.6" rx="223.2" ry="16.2" fill="#C9B99A" opacity="0.45"/><g transform="translate(420 252) scale(5.625)" fill="none" stroke="#2B2A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M8 24h48v6H8z"/><path d="M12 30v26M52 30v26M36 30v14h16"/></g>
+</svg>

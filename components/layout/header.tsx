@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 export async function Header({ nav, user, cartCount, announcement, supportPhone }: { nav: NavData; user: HeaderUser | null; cartCount: number; announcement: string; supportPhone: string }) {
   const t = await getT();
-  const navCategories = nav.categories.slice(0, 7);
+  const navCategories = (nav.categories.some((c) => c.showInNav) ? nav.categories.filter((c) => c.showInNav) : nav.categories).slice(0, 8);
   return (
     <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/90">
       {/* Barre supérieure */}

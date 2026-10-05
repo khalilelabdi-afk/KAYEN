@@ -16,20 +16,6 @@ export interface QuickOrderLineResult {
   message?: string;
 }
 
-/** Analyse des lignes "SKU;Quantité" (collées ou importées) sans ajouter au panier. */
-export function parseQuickOrderText(text: string): { sku: string; quantity: number }[] {
-  const lines: { sku: string; quantity: number }[] = [];
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
-    if (!line) continue;
-    const [sku, qty] = line.split(/[;,\t]|\s{2,}|\s+(?=\d+$)/).map((s) => s?.trim());
-    if (!sku || /^sku$/i.test(sku)) continue;
-    const quantity = Number.parseInt(qty ?? "1", 10);
-    lines.push({ sku, quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1 });
-  }
-  return lines.slice(0, 500);
-}
-
 export async function quickOrderAction(input: { lines: { sku: string; quantity: number }[] }): Promise<ActionResult<{ results: QuickOrderLineResult[]; added: number }>> {
   const t = await getT();
   const parsed = quickOrderSchema.safeParse(input);

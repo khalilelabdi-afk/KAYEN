@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const category = await getCategoryByPath(path.join("/"));
   if (!category) return {};
   return {
-    title: category.seoTitle ?? category.name,
+    title: category.seoTitle ? { absolute: category.seoTitle } : category.name,
     description: category.seoDescription ?? category.description ?? undefined,
     alternates: { canonical: category.href },
   };
@@ -32,9 +32,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <CatalogPageHeader
         crumbs={crumbs}
         breadcrumbLabel={t("common.breadcrumb.label")}
-        title={category.seoTitle ?? category.name}
+        title={category.name}
         description={category.description}
-        subcategories={category.children}
+        subcategories={category.children.filter((c) => c.productCount > 0)}
         subcategoriesLabel={t("catalog.plp.subcategories")}
         countLabel={(n) => t.plural("catalog.plp.productsCount", n)}
       />

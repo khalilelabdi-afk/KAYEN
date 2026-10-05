@@ -33,7 +33,7 @@ export const defaultHomeSections: HomeSectionView[] = [
   { id: "promotions", type: "PROMOTIONS", title: null, subtitle: null, ctaLabel: null, ctaHref: null, image: null, config: { limit: 8 } },
   { id: "new", type: "NEW_ARRIVALS", title: null, subtitle: null, ctaLabel: null, ctaHref: null, image: null, config: { limit: 8 } },
   { id: "quote", type: "BANNER", title: null, subtitle: null, ctaLabel: null, ctaHref: "/quote", image: null, config: { variant: "quote" } },
-  { id: "brands", type: "BRANDS", title: null, subtitle: null, ctaLabel: null, ctaHref: null, image: null, config: { limit: 8 } },
+  { id: "brands", type: "BRANDS", title: null, subtitle: null, ctaLabel: null, ctaHref: null, image: null, config: { limit: 6 } },
   { id: "guides", type: "GUIDES", title: null, subtitle: null, ctaLabel: null, ctaHref: null, image: null, config: { limit: 3 } },
 ];
 
@@ -56,11 +56,19 @@ export const getHomeSections = unstable_cache(
   { tags: [CMS_TAG], revalidate: 300 },
 );
 
-export const getPageBySlug = unstable_cache(
-  async (slug: string) => db.cmsPage.findFirst({ where: { slug, status: "PUBLISHED" } }),
+const getPageRaw = unstable_cache(
+  async (slug: string) => {
+    const page = await db.cmsPage.findFirst({ where: { slug, status: "PUBLISHED" } });
+    return page ? { ...page, publishedAt: page.publishedAt?.toISOString() ?? null, createdAt: page.createdAt.toISOString(), updatedAt: page.updatedAt.toISOString() } : null;
+  },
   ["cms-page"],
   { tags: [CMS_TAG], revalidate: 600 },
 );
+
+export async function getPageBySlug(slug: string) {
+  const page = await getPageRaw(slug);
+  return page ? { ...page, publishedAt: page.publishedAt ? new Date(page.publishedAt) : null, createdAt: new Date(page.createdAt), updatedAt: new Date(page.updatedAt) } : null;
+}
 
 export const getFooterPages = unstable_cache(
   async () => db.cmsPage.findMany({ where: { status: "PUBLISHED", showInFooter: true }, select: { slug: true, title: true }, orderBy: { title: "asc" } }),
@@ -83,7 +91,8 @@ export interface GuideSummary {
   category: { slug: string; name: string } | null;
   authorName: string | null;
   readingMinutes: number;
-  publishedAt: Date | null;
+  /** ISO (le cache sérialise en JSON). */
+  publishedAt: string | null;
   href: string;
 }
 
@@ -95,7 +104,7 @@ export const getGuides = unstable_cache(
       take: limit,
       include: { category: { select: { slug: true, name: true } } },
     });
-    return rows.map((r) => ({ id: r.id, slug: r.slug, title: r.title, excerpt: r.excerpt, image: r.image, category: r.category, authorName: r.authorName, readingMinutes: r.readingMinutes, publishedAt: r.publishedAt, href: `/guides/${r.slug}` }));
+    return rows.map((r) => ({ id: r.id, slug: r.slug, title: r.title, excerpt: r.excerpt, image: r.image, category: r.category, authorName: r.authorName, readingMinutes: r.readingMinutes, publishedAt: r.publishedAt?.toISOString() ?? null, href: `/guides/${r.slug}` }));
   },
   ["guides"],
   { tags: [CMS_TAG], revalidate: 600 },

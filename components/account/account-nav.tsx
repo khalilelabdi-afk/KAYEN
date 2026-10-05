@@ -13,7 +13,7 @@ export function AccountNav({ items }: { items: { href: string; label: string; ic
   const t = useT();
   const pathname = usePathname();
   return (
-    <nav aria-label={t("account.title")} className="lg:sticky lg:top-32 lg:self-start">
+    <nav aria-label={t("account.title")} className="min-w-0 lg:sticky lg:top-32 lg:self-start">
       <ul className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-2 scrollbar-none lg:mx-0 lg:flex-col lg:px-0 lg:pb-0">
         {items.map((item) => {
           const Icon = icons[item.icon];

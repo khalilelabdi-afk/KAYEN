@@ -31,19 +31,22 @@ export interface SearchProvider {
   didYouMean(query: string): Promise<string | null>;
 }
 
-const getSynonyms = unstable_cache(
-  async () => {
-    const rows = await db.searchSynonym.findMany();
-    const map = new Map<string, string[]>();
-    for (const r of rows) {
-      map.set(r.term.toLowerCase(), r.synonyms);
-      for (const s of r.synonyms) map.set(s.toLowerCase(), [r.term, ...r.synonyms.filter((x) => x !== s)]);
-    }
-    return map;
-  },
+const getSynonymRows = unstable_cache(
+  async () => (await db.searchSynonym.findMany()).map((r) => ({ term: r.term, synonyms: r.synonyms })),
   ["search-synonyms"],
   { tags: ["search"], revalidate: 3600 },
 );
+
+/** Index terme → synonymes (reconstruit à partir du cache JSON). */
+async function getSynonyms(): Promise<Map<string, string[]>> {
+  const rows = await getSynonymRows();
+  const map = new Map<string, string[]>();
+  for (const r of rows) {
+    map.set(r.term.toLowerCase(), r.synonyms);
+    for (const s of r.synonyms) map.set(s.toLowerCase(), [r.term, ...r.synonyms.filter((x) => x !== s)]);
+  }
+  return map;
+}
 
 export function normalizeQuery(q: string): string {
   return q.trim().replace(/\s+/g, " ").slice(0, 120);
@@ -67,6 +70,7 @@ const postgresProvider: SearchProvider = {
     if (!q) return [];
     const expanded = await expandQuery(q);
     const like = `${q.toLowerCase()}%`;
+    // word_similarity : tolérance aux fautes de frappe (« gobelt » → « Gobelet carton… ») indépendante de la longueur du nom.
     const rows = await db.$queryRaw<{ id: string; score: number }[]>(Prisma.sql`
       WITH q AS (
         SELECT websearch_to_tsquery('french', kayen_unaccent(${expanded})) AS tsq,
@@ -76,13 +80,13 @@ const postgresProvider: SearchProvider = {
         (CASE WHEN lower(p.sku) LIKE ${like} THEN 10 ELSE 0 END)
         + (CASE WHEN EXISTS (SELECT 1 FROM "ProductVariant" v WHERE v."productId" = p.id AND lower(v.sku) LIKE ${like}) THEN 10 ELSE 0 END)
         + ts_rank_cd(kayen_product_search_vector(p.name, p.sku, p.keywords, p."shortDescription", p.description), q.tsq) * 6
-        + similarity(kayen_unaccent(lower(p.name)), q.raw) * 4
+        + word_similarity(q.raw, kayen_unaccent(lower(p.name))) * 4
         + (CASE WHEN kayen_unaccent(lower(p.name)) LIKE ('%' || q.raw || '%') THEN 2 ELSE 0 END)
         + LEAST(p."salesCount", 500) / 1000.0 AS score
       FROM "Product" p, q
       WHERE p.status = 'ACTIVE' AND (
         kayen_product_search_vector(p.name, p.sku, p.keywords, p."shortDescription", p.description) @@ q.tsq
-        OR similarity(kayen_unaccent(lower(p.name)), q.raw) > 0.22
+        OR word_similarity(q.raw, kayen_unaccent(lower(p.name))) > 0.5
         OR kayen_unaccent(lower(p.name)) LIKE ('%' || q.raw || '%')
         OR lower(p.sku) LIKE ${like}
         OR EXISTS (SELECT 1 FROM "ProductVariant" v WHERE v."productId" = p.id AND lower(v.sku) LIKE ${like})

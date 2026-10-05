@@ -5,6 +5,22 @@ const remoteImageHosts = (process.env.IMAGE_REMOTE_HOSTS ?? "")
   .map((h) => h.trim())
   .filter(Boolean);
 
+const isDev = process.env.NODE_ENV === "development";
+/** CSP sans nonce (compatible rendu statique). 'unsafe-eval' uniquement en développement (React DevTools / HMR). */
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' https:",
+  "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+].join("; ");
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -23,6 +39,7 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
           { key: "X-DNS-Prefetch-Control", value: "on" },
+          { key: "Content-Security-Policy", value: csp },
         ],
       },
     ];

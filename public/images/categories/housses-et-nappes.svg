@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="Housses &amp; nappes">
+<rect width="1200" height="900" fill="#DDDFE4"/>
+<rect x="27" y="27" width="1146" height="846" fill="none" stroke="#A6ABB8" stroke-opacity="0.55" stroke-width="2" rx="11"/>
+<ellipse cx="600" cy="651.6" rx="223.2" ry="16.2" fill="#A6ABB8" opacity="0.45"/><g transform="translate(420 252) scale(5.625)" fill="none" stroke="#24262B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M32 8 4 52h56z"/><path d="M32 8v44M22 52l10-20 10 20"/></g>
+</svg>

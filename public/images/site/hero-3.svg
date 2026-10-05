@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" role="img" aria-label="Emballage">
+<rect width="800" height="800" fill="#EADDD3"/>
+<rect x="24" y="24" width="752" height="752" fill="none" stroke="#C8A897" stroke-opacity="0.55" stroke-width="2" rx="10"/>
+<ellipse cx="400" cy="606.08" rx="228.16" ry="14.399999999999999" fill="#C8A897" opacity="0.45"/><g transform="translate(216 200) scale(5.75)" fill="none" stroke="#2E2724" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M8 20 32 10l24 10v24L32 54 8 44z"/><path d="M8 20l24 10 24-10M32 30v24"/></g>
+</svg>

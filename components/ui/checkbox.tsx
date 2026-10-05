@@ -88,25 +88,28 @@ export function RadioCard({
   className?: string;
   children?: React.ReactNode;
 }) {
+  // Le <label> ne couvre que le bouton radio, le titre et la description : le contenu
+  // additionnel (champs imbriqués) reste hors du nom accessible du radio.
   return (
-    <label
-      htmlFor={id}
+    <div
       className={cn(
-        "flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface p-4 transition-colors has-[[data-state=checked]]:border-ink has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-ink hover:border-border-strong",
-        disabled && "cursor-not-allowed opacity-60",
+        "rounded-lg border border-border bg-surface p-4 transition-colors has-[[data-state=checked]]:border-ink has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-ink hover:border-border-strong",
+        disabled && "opacity-60",
         className,
       )}
     >
-      <RadioItem value={value} id={id} disabled={disabled} className="mt-0.5" />
-      <span className="min-w-0 flex-1">
-        <span className="flex items-start justify-between gap-3">
-          <span className="text-sm font-medium text-foreground">{title}</span>
-          {trailing && <span className="shrink-0 text-sm font-semibold tnum">{trailing}</span>}
+      <label htmlFor={id} className={cn("flex items-start gap-3", disabled ? "cursor-not-allowed" : "cursor-pointer")}>
+        <RadioItem value={value} id={id} disabled={disabled} className="mt-0.5" />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-start justify-between gap-3">
+            <span className="text-sm font-medium text-foreground">{title}</span>
+            {trailing && <span className="shrink-0 text-sm font-semibold tnum">{trailing}</span>}
+          </span>
+          {description && <span className="mt-0.5 block text-xs text-muted">{description}</span>}
         </span>
-        {description && <span className="mt-0.5 block text-xs text-muted">{description}</span>}
-        {children}
-      </span>
-    </label>
+      </label>
+      {children ? <div className="ps-7">{children}</div> : null}
+    </div>
   );
 }
 

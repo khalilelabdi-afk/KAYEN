@@ -105,7 +105,7 @@ export function MegaMenu({ nav }: { nav: NavData }) {
                   </div>
                   {active.children.length ? (
                     <div className="grid grid-cols-3 gap-x-6 gap-y-5">
-                      {active.children.map((child) => (
+                      {active.children.filter((child) => child.productCount > 0).map((child) => (
                         <div key={child.id} className="min-w-0">
                           <Link href={child.href} onClick={() => setOpen(false)} className="block text-sm font-semibold hover:text-accent">
                             {child.name}
@@ -113,7 +113,7 @@ export function MegaMenu({ nav }: { nav: NavData }) {
                           </Link>
                           {child.children.length > 0 && (
                             <ul className="mt-1.5 space-y-1">
-                              {child.children.slice(0, 6).map((g) => (
+                              {child.children.filter((g) => g.productCount > 0).slice(0, 6).map((g) => (
                                 <li key={g.id}>
                                   <Link href={g.href} onClick={() => setOpen(false)} className="text-[13px] text-muted hover:text-foreground">
                                     {g.name}

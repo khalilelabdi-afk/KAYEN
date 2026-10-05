@@ -43,9 +43,26 @@ Carte bancaire de test (provider `mock`) : n'importe quel numéro de 12 à 19 ch
 | `pnpm dev` / `pnpm build` / `pnpm start` | Développement, build de production, serveur |
 | `pnpm typecheck` / `pnpm lint` | TypeScript strict, ESLint (règles Next + React Compiler) |
 | `pnpm test` | Tests unitaires Vitest (moteur de prix, paniers, utilitaires) |
-| `pnpm test:e2e` | Parcours Playwright (base seedée requise) |
+| `pnpm test:e2e` | Parcours Playwright (base seedée requise, voir ci-dessous) |
 | `pnpm db:migrate` / `db:deploy` / `db:seed` / `db:reset` / `db:studio` | Prisma |
 | `pnpm placeholders` | Régénère les visuels provisoires |
+| `pnpm tsx scripts/check-seed.ts` | Vérifie la cohérence du jeu de données de démonstration avant seed |
+| `node scripts/dev/screenshots.mjs` (et `viewport-shots`, `auth-shots`, `admin-shots`) | Captures d'écran d'audit visuel (serveur sur `localhost:3000`) |
+
+### Tests E2E
+
+Les parcours Playwright (`tests/e2e/`) couvrent le catalogue, la recherche, le panier, l'inscription, la connexion, le checkout carte, la demande de devis, la navigation mobile et le back-office. Ils supposent une base seedée.
+
+```bash
+# Contre un build de production (recommandé, temps de réponse stables)
+pnpm build && pnpm start &
+E2E_BASE_URL=http://localhost:3000 pnpm test:e2e
+
+# Sans E2E_BASE_URL, Playwright démarre lui-même `next dev` (plus lent au premier rendu de chaque page)
+pnpm test:e2e
+```
+
+`PW_CHROMIUM_PATH=/chemin/vers/chromium` permet d'utiliser un Chromium déjà installé au lieu des navigateurs Playwright.
 
 ## Variables d'environnement
 
@@ -90,6 +107,9 @@ Les valeurs ci-dessous sont des valeurs provisoires clairement identifiables, mo
 - taux de TVA et libellé de l'identifiant fiscal selon le marché (`TaxClass`, `taxIdLabel`) ;
 - pages légales (mentions légales, CGV, confidentialité, cookies, livraison, paiement, retours) : squelettes avec marqueurs « [À compléter : …] » dans `/admin/pages` ;
 - logo définitif (remplacer le wordmark dans `components/layout/logo.tsx` et `app/icon.tsx`), photos produits et marques ;
-- clés des providers (email, paiement, stockage, analytics).
+- catalogue de démonstration (produits, marques fictives, prix, paliers, stocks, promotions, guides) : à remplacer par le vrai assortiment via `/admin/products`, l'import CSV (`/admin/imports`) ou un nouveau jeu de données `db/seed` ;
+- clés des providers (email, paiement, stockage, analytics) et, pour la production, un provider de paiement réel (`PAYMENT_CARD_PROVIDER=stripe` avec les clés correspondantes).
+
+Remarques d'exploitation : les dates de promotion saisies dans le back-office sont interprétées dans le fuseau horaire du serveur (`TZ`) ; les comptes professionnels s'inscrivent en statut « en attente » et doivent être approuvés dans `/admin/customers` avant de commander.
 
 Aucune statistique, certification, avis client ou partenaire n'est inventé.

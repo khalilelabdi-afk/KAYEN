@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Devis">
+<rect width="1600" height="900" fill="#E3E5D4"/>
+<rect x="27" y="27" width="1546" height="846" fill="none" stroke="#B6B894" stroke-opacity="0.55" stroke-width="2" rx="11"/>
+<ellipse cx="800" cy="621.36" rx="189.72" ry="16.2" fill="#B6B894" opacity="0.45"/><g transform="translate(647 279) scale(4.78125)" fill="none" stroke="#2A2C22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M8 20h48v34H8z"/><path d="M24 20v-8h16v8"/><path d="M32 30v12M26 36h12"/></g>
+</svg>

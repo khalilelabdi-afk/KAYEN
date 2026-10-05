@@ -10,11 +10,7 @@ export function Label({ className, required, optionalLabel, children, ...props }
   return (
     <label className={cn("mb-1.5 block text-sm font-medium text-foreground", className)} {...props}>
       {children}
-      {required && (
-        <span aria-hidden className="ms-0.5 text-error">
-          *
-        </span>
-      )}
+      {required && <span aria-hidden className="ms-0.5 text-error after:content-['*']" />}
       {!required && optionalLabel && <span className="ms-1.5 text-xs font-normal text-muted">({optionalLabel})</span>}
     </label>
   );

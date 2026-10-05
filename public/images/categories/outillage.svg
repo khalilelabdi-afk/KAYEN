@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-label="Outillage">
+<rect width="1200" height="900" fill="#E3E5D4"/>
+<rect x="27" y="27" width="1146" height="846" fill="none" stroke="#B6B894" stroke-opacity="0.55" stroke-width="2" rx="11"/>
+<ellipse cx="600" cy="651.6" rx="223.2" ry="16.2" fill="#B6B894" opacity="0.45"/><g transform="translate(420 252) scale(5.625)" fill="none" stroke="#2A2C22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M12 10h40v12H12z"/><path d="M16 22v32h32V22"/><path d="M22 38h20v10H22z"/><path d="M30 30v6M34 30v6"/></g>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-label="RES-PLA-PEHD-60X40">
+<rect width="1200" height="1200" fill="#DFE6DC"/>
+<rect x="36" y="36" width="1128" height="1128" fill="none" stroke="#A9BBA6" stroke-opacity="0.55" stroke-width="2" rx="14"/>
+<g transform="translate(272.40000000000003 206.88) scale(14.625)" fill="none" stroke="#26302A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.82"><rect x="12" y="12" width="40" height="40" rx="4"/><path d="M12 40l12-12 10 10 6-6 12 12"/><circle cx="42" cy="22" r="3"/></g><text x="72" y="1128" font-family="Inter, system-ui, sans-serif" font-size="34" font-weight="600" letter-spacing="0.08em" fill="#26302A" opacity="0.55">RES-PLA-PEHD-60X40</text>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-label="SAN-DES-SUR-1L-12">
+<rect width="1200" height="1200" fill="#DFE6DC"/>
+<rect x="36" y="36" width="1128" height="1128" fill="none" stroke="#A9BBA6" stroke-opacity="0.55" stroke-width="2" rx="14"/>
+<g transform="translate(272.40000000000003 206.88) scale(14.625)" fill="none" stroke="#26302A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.82"><path d="M24 24h16v30a4 4 0 0 1-4 4H28a4 4 0 0 1-4-4z"/><path d="M28 24v-8h8v8M36 16h8l6-6"/><path d="M24 36h16"/></g><text x="72" y="1128" font-family="Inter, system-ui, sans-serif" font-size="34" font-weight="600" letter-spacing="0.08em" fill="#26302A" opacity="0.55">SAN-DES-SUR-1L-12</text>
+</svg>

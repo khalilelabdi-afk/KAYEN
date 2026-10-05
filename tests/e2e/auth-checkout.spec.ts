@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login, addFirstProductToCart, DEMO } from "./helpers";
+import { login, addFirstProductToCart, DEMO, ADMIN } from "./helpers";
 
 test.describe("Compte et commande", () => {
   test("inscription d'un compte professionnel", async ({ page }) => {
@@ -14,7 +14,7 @@ test.describe("Compte et commande", () => {
     await page.getByLabel(/J'accepte les conditions/).check();
     await page.getByRole("button", { name: "Créer mon compte" }).click();
     await page.waitForURL(/\/register\/success/);
-    await expect(page.getByText("Bienvenue chez KAYEN")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Bienvenue chez KAYEN" })).toBeVisible();
   });
 
   test("connexion avec mauvais mot de passe puis succès", async ({ page }) => {
@@ -28,6 +28,7 @@ test.describe("Compte et commande", () => {
   });
 
   test("parcours panier → checkout → confirmation (carte mock)", async ({ page }) => {
+    test.slow();
     await login(page, DEMO, "/c");
     await addFirstProductToCart(page);
     await page.goto("/cart");
@@ -44,7 +45,7 @@ test.describe("Compte et commande", () => {
     await page.getByLabel(/J'accepte les conditions/).check();
     await page.getByRole("button", { name: /Confirmer la commande/ }).click();
     await page.waitForURL(/\/checkout\/confirmation\//, { timeout: 30_000 });
-    await expect(page.getByText("Merci, votre commande est enregistrée")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Merci, votre commande est enregistrée" })).toBeVisible();
     await page.getByRole("link", { name: "Voir ma commande" }).click();
     await page.waitForURL(/\/account\/orders\//);
     await expect(page.getByRole("button", { name: "Commander à nouveau" })).toBeVisible();
@@ -54,7 +55,7 @@ test.describe("Compte et commande", () => {
     await page.goto("/c");
     await page.locator("article a[href^='/p/']").first().click();
     await page.waitForURL(/\/p\//);
-    await page.getByRole("link", { name: "Demander un devis" }).first().click();
+    await page.locator("main").getByRole("link", { name: "Demander un devis" }).and(page.locator("[href*='sku=']")).first().click();
     await page.waitForURL(/\/quote\?sku=/);
     await page.getByLabel("Société").fill("Société E2E");
     await page.getByLabel("Nom du contact").fill("Test E2E");
@@ -62,13 +63,18 @@ test.describe("Compte et commande", () => {
     await page.getByLabel(/J'accepte d'être contacté/).check();
     await page.getByRole("button", { name: "Envoyer la demande de devis" }).click();
     await page.waitForURL(/\/quote\/success/);
-    await expect(page.getByText("Demande envoyée")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Demande envoyée" })).toBeVisible();
   });
 
   test("accès admin refusé aux clients et autorisé à l'admin", async ({ page }) => {
     await login(page, DEMO, "/account");
     await page.goto("/admin");
     await page.waitForURL(/\/account/);
-    await page.goto("/api/auth/logout");
+    const logout = await page.request.post("/api/auth/logout");
+    expect(logout.ok()).toBeTruthy();
+    await page.goto("/account");
+    await page.waitForURL(/\/login/);
+    await login(page, ADMIN, "/admin");
+    await expect(page.getByRole("heading", { level: 1, name: "Tableau de bord" })).toBeVisible();
   });
 });

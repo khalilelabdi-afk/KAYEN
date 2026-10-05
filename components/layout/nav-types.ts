@@ -6,6 +6,7 @@ export interface NavCategory {
   icon: string | null;
   image: string | null;
   productCount: number;
+  showInNav: boolean;
   children: NavCategory[];
 }
 

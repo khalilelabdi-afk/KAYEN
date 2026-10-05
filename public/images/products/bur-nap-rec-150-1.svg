@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-label="BUR-NAP-REC-150">
+<rect width="1200" height="1200" fill="#F0EBE1"/>
+<rect x="36" y="36" width="1128" height="1128" fill="none" stroke="#D2C8B4" stroke-opacity="0.55" stroke-width="2" rx="14"/>
+<ellipse cx="600" cy="882.24" rx="312.48" ry="21.599999999999998" fill="#D2C8B4" opacity="0.45"/><g transform="translate(348 324) scale(7.875)" fill="none" stroke="#2B2A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"><path d="M6 22h52v6H6z"/><path d="M12 28v26M52 28v26M12 42h40"/></g><text x="72" y="1128" font-family="Inter, system-ui, sans-serif" font-size="34" font-weight="600" letter-spacing="0.08em" fill="#2B2A26" opacity="0.55">BUR-NAP-REC-150</text>
+</svg>
