@@ -1,0 +1,296 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────────────────
+   KAYEN — Design tokens
+   Palette : noir profond / ivoire / gris chaud / vert minéral (accent).
+   Tous les tokens sont exposés à Tailwind via @theme.
+   ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Polices */
+  --font-sans: var(--font-sans), system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: var(--font-display), var(--font-sans), system-ui, sans-serif;
+
+  /* Couleurs de base */
+  --color-ink: #111111;
+  --color-ink-800: #1f1f1f;
+  --color-ink-700: #2b2b2b;
+  --color-ink-600: #3d3d3b;
+  --color-paper: #f7f6f2;
+  --color-paper-2: #efede7;
+  --color-paper-3: #e7e4dc;
+  --color-surface: #ffffff;
+
+  /* Sémantique */
+  --color-primary: var(--color-ink);
+  --color-primary-hover: #000000;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-paper-2);
+  --color-secondary-hover: var(--color-paper-3);
+  --color-secondary-foreground: var(--color-ink);
+  --color-accent: #47624a;
+  --color-accent-hover: #3b5340;
+  --color-accent-foreground: #ffffff;
+  --color-accent-soft: #e6ede5;
+  --color-accent-softer: #f0f4ef;
+  --color-foreground: #141414;
+  --color-muted: #6b6b66;
+  --color-subtle: #9a9a93;
+  --color-border: #e3e1da;
+  --color-border-strong: #c9c6bd;
+  --color-success: #2f7a4c;
+  --color-success-soft: #e4f2e9;
+  --color-warning: #b7791f;
+  --color-warning-soft: #fbf1dd;
+  --color-error: #b42318;
+  --color-error-soft: #fbe9e7;
+  --color-info: #2a5bd7;
+  --color-info-soft: #e7eefc;
+  --color-promo: #47624a;
+  --color-promo-soft: #e6ede5;
+
+  /* Rayons — légèrement arrondis, jamais excessifs */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* Ombres légères uniquement */
+  --shadow-xs: 0 1px 2px rgb(17 17 17 / 0.06);
+  --shadow-sm: 0 1px 3px rgb(17 17 17 / 0.08), 0 1px 2px rgb(17 17 17 / 0.04);
+  --shadow-md: 0 4px 12px rgb(17 17 17 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(17 17 17 / 0.12);
+
+  /* Largeur de contenu */
+  --container-site: 1440px;
+
+  /* Animations courtes */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --animate-fade-in: fade-in 160ms var(--ease-out-quart) both;
+  --animate-slide-up: slide-up 220ms var(--ease-out-quart) both;
+  --animate-slide-in-right: slide-in-right 240ms var(--ease-out-quart) both;
+  --animate-slide-in-left: slide-in-left 240ms var(--ease-out-quart) both;
+  --animate-slide-in-bottom: slide-in-bottom 240ms var(--ease-out-quart) both;
+  --animate-scale-in: scale-in 160ms var(--ease-out-quart) both;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes slide-in-bottom {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Base
+   ────────────────────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-padding-top: 7rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  button, [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled, [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+  [dir="rtl"] .rtl-flip {
+    transform: scaleX(-1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Typographie — hiérarchie unique partagée
+   ────────────────────────────────────────────────────────────────────────── */
+@utility t-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+@utility t-h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+@utility t-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.375rem, 2.4vw, 1.875rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+@utility t-h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+@utility t-h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+@utility t-body-lg {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+@utility t-body {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+@utility t-small {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+@utility t-caption {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+@utility t-label {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+@utility t-price {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+@utility t-price-lg {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 1.625rem;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+}
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Utilitaires de mise en page
+   ────────────────────────────────────────────────────────────────────────── */
+@utility container-site {
+  width: 100%;
+  max-width: var(--container-site);
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (min-width: 640px) { padding-inline: 1.5rem; }
+  @media (min-width: 1024px) { padding-inline: 2rem; }
+  @media (min-width: 1440px) { padding-inline: 2.5rem; }
+}
+@utility hairline {
+  border-color: var(--color-border);
+}
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+@utility skeleton {
+  background: linear-gradient(90deg, var(--color-paper-2) 0%, var(--color-paper-3) 50%, var(--color-paper-2) 100%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+  border-radius: var(--radius-md);
+}
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Contenu éditorial (markdown rendu) */
+@utility prose-kayen {
+  color: var(--color-foreground);
+  line-height: 1.65;
+  & > * + * { margin-top: 0.9em; }
+  & h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.375rem; margin-top: 1.8em; letter-spacing: -0.01em; }
+  & h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; margin-top: 1.4em; }
+  & ul { list-style: disc; padding-inline-start: 1.25rem; }
+  & ol { list-style: decimal; padding-inline-start: 1.25rem; }
+  & li + li { margin-top: 0.3em; }
+  & a { text-decoration: underline; text-underline-offset: 3px; }
+  & strong { font-weight: 600; }
+  & table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  & th, & td { border: 1px solid var(--color-border); padding: 0.5rem 0.75rem; text-align: start; }
+  & th { background: var(--color-paper-2); font-weight: 600; }
+  & blockquote { border-inline-start: 3px solid var(--color-accent); padding-inline-start: 1rem; color: var(--color-muted); }
+  & code { background: var(--color-paper-2); padding: 0.1em 0.35em; border-radius: var(--radius-xs); font-size: 0.875em; }
+}
